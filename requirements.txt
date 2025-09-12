@@ -1,0 +1,5 @@
+neo4j==5.24.0
+graphdatascience==1.10.0
+pandas==2.2.2
+pyyaml==6.0.1
+python-dotenv==1.0.1
