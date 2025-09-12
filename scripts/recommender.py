@@ -1,59 +1,72 @@
-from neo4j import GraphDatabase
-from scripts.utils import load_config, run_cypher_file
-import sys
-import json
+import os
 import logging
+from typing import List, Dict
+from neo4j import GraphDatabase
+from dotenv import load_dotenv
 
-class Recommender:
-    def __init__(self, uri, user, password):
-        self.driver = GraphDatabase.driver(uri, auth=(user, password))
-    
+load_dotenv()
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+class RecommendationEngine:
+    def __init__(self):
+        self.uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+        self.user = os.getenv("NEO4J_USER", "neo4j")
+        self.password = os.getenv("NEO4J_PASSWORD", "password")
+        self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
+        logger.info(f"Connected to Neo4j at {self.uri}")
+
     def close(self):
         self.driver.close()
-    
-    def get_recommendations(self, user_id, rec_type):
-        """Run recommendation query based on type."""
-        query_map = {
-            'content': 'cypher/Content_Based.cypher',
-            'collaborative': 'cypher/Collaborative_Filtering.cypher',
-            'genre': 'cypher/gener_based.cypher',
-            'hybrid': 'cypher/hybrid_recommendation.cypher'
-        }
-        if rec_type not in query_map:
-            raise ValueError(f"Unknown recommendation type: {rec_type}")
-        
-        results = run_cypher_file(self.driver, query_map[rec_type], {'userId': user_id})
-        return results
+        logger.info("Neo4j connection closed.")
+
+    def execute_query(self, query: str, params: dict = None) -> List[Dict]:
+        try:
+            with self.driver.session() as session:
+                return [dict(record) for record in session.run(query, params)]
+        except Exception as e:
+            logger.error(f"Query execution failed: {e}")
+            return []
+
+    def load_cypher_file(self, file_path: str) -> str:
+        try:
+            with open(file_path, 'r') as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Error reading {file_path}: {e}")
+            return None
+
+    def get_recommendations(self, cypher_file: str, user_id: int, limit: int = 10) -> List[Dict]:
+        query = self.load_cypher_file(cypher_file)
+        if not query:
+            logger.error(f"Cannot load Cypher query from {cypher_file}")
+            return []
+
+        results = self.execute_query(query, {"userId": user_id})
+        return results[:limit] if results else []
 
 if __name__ == "__main__":
-    config = load_config()
-    recommender = Recommender(
-        config["neo4j"]["localhost:7687"],
-        config["neo4j"]["neo4j"],
-        config["neo4j"]["321654987"]
-    )
-    
-    if len(sys.argv) != 3:
-        print("Usage: python scripts/recommender.py <content|collaborative|genre|hybrid> <userId>")
-        sys.exit(1)
-    
-    rec_type = sys.argv[1]
-    user_id = sys.argv[2]
-    
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--user-id", type=int, required=True, help="User ID")
+    parser.add_argument("--strategy", choices=["collaborative", "content", "hybrid", "genre"], default="hybrid")
+    args = parser.parse_args()
+
+    strategy_files = {
+        "collaborative": "cypher/collaborative_filtering.cypher",
+        "content": "cypher/content_based.cypher",
+        "hybrid": "cypher/hybrid_recommendation.cypher",
+        "genre": "cypher/genre_based.cypher"
+    }
+
+    engine = RecommendationEngine()
     try:
-        recs = recommender.get_recommendations(user_id, rec_type)
-        output_path = f"outputs/recommendations/{rec_type}_{user_id}.json"
-        with open(output_path, 'w') as f:
-            json.dump(recs, f, indent=2)
-        logging.info(f"Recommendations saved to {output_path}")
-        
-        print(f"Top recommendations for user {user_id} ({rec_type}):")
-        for rec in recs:
-            title = rec['recommendation']
-            score = rec.get('similarityScore', rec.get('predictedScore', rec.get('finalScore', 'N/A')))
-            print(f"- {title} (Score: {score})")
-    except Exception as e:
-        logging.error(f"Recommendation failed: {e}")
-        print(f"Error: {e}")
+        recs = engine.get_recommendations(strategy_files[args.strategy], args.user_id)
+        if recs:
+            for i, rec in enumerate(recs, 1):
+                logger.info(f"{i}. {rec}")
+        else:
+            logger.info("No recommendations found.")
     finally:
-        recommender.close()
+        engine.close()
