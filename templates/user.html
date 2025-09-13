@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="max-w-lg mx-auto">
+        <h2 class="text-3xl font-bold text-red-600 mb-6">Create a New User</h2>
+        <form method="POST" action="{{ url_for('user') }}" class="space-y-6">
+            <div>
+                <label for="user_id" class="block text-sm font-medium mb-2 text-white">User ID <span class="text-red-500">*</span></label>
+                <input type="number" id="user_id" name="user_id" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-600" required min="1">
+            </div>
+            <div>
+                <label for="name" class="block text-sm font-medium mb-2 text-white">Name (Optional)</label>
+                <input type="text" id="name" name="name" class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-600" placeholder="e.g., John Doe">
+            </div>
+            <div>
+                <label for="genres" class="block text-sm font-medium mb-2 text-white">Favorite Genres <span class="text-gray-400">(Select multiple with Ctrl/Cmd + click)</span></label>
+                <select id="genres" name="genres" multiple class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-600 h-24">
+                    {% for genre in options.genres %}
+                        <option value="{{ genre }}">{{ genre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="actors" class="block text-sm font-medium mb-2 text-white">Favorite Actors <span class="text-gray-400">(Select multiple)</span></label>
+                <select id="actors" name="actors" multiple class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-600 h-24">
+                    {% for actor in options.actors %}
+                        <option value="{{ actor }}">{{ actor }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="directors" class="block text-sm font-medium mb-2 text-white">Favorite Directors <span class="text-gray-400">(Select multiple)</span></label>
+                <select id="directors" name="directors" multiple class="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-600 h-24">
+                    {% for director in options.directors %}
+                        <option value="{{ director }}">{{ director }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 transition font-medium">Create User & Get Recommendations</button>
+        </form>
+    </div>
+{% endblock %}

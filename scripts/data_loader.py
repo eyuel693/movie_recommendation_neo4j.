@@ -52,15 +52,15 @@ def main():
     conn = Neo4jConnection()
     try:
         steps = [
-            ("cypher/01_clear_database.cypher", "Clear database"),
-            ("cypher/02_create_indexes.cypher", "Create indexes"),
-            ("cypher/03_load_shows.cypher", "Load shows"),
-            ("cypher/04_load_directors.cypher", "Load directors"),
-            ("cypher/05_load_actors.cypher", "Load actors"),
-            ("cypher/06_load_countries.cypher", "Load countries"),
-            ("cypher/07_load_genres.cypher", "Load genres"),
-            ("cypher/08_load_ratings.cypher", "Load ratings"),
-            ("cypher/09_create_users.cypher", "Create users")
+            ("cypher/clear_database.cypher", "Clear database"),
+            ("cypher/create_indexes.cypher", "Create indexes"),
+            ("cypher/load_shows.cypher", "Load shows"),
+            ("cypher/load_directors.cypher", "Load directors"),
+            ("cypher/load_actors.cypher", "Load actors"),
+            ("cypher/load_countries.cypher", "Load countries"),
+            ("cypher/load_genres.cypher", "Load genres"),
+            ("cypher/load_ratings.cypher", "Load ratings"),
+            ("cypher/create_users.cypher", "Create users")
         ]
 
         for file_path, desc in steps:

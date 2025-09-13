@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="text-center">
+        <h2 class="text-4xl font-bold text-red-600 mb-4">Welcome to Netflix Recommender</h2>
+        <p class="text-lg mb-8">Discover personalized movie and TV show recommendations tailored to your tastes.</p>
+        
+        <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <!-- Existing User Section -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold mb-4 text-white">For Existing Users</h3>
+                <form method="POST" action="{{ url_for('search_user') }}" class="space-y-4">
+                    <input 
+                        type="number" 
+                        name="user_id" 
+                        placeholder="Enter your User ID" 
+                        class="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-red-600" 
+                        required 
+                        min="1"
+                    >
+                    <button type="submit" class="w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 transition">Get My Recommendations</button>
+                </form>
+            </div>
+            
+            <!-- New User Section -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold mb-4 text-white">For New Users</h3>
+                <a href="{{ url_for('user') }}" class="block w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 transition text-center">Create New User & Get Recommendations</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

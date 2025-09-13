@@ -1,0 +1,4 @@
+/.venv
+/outputs/logs
+/.env
+/scripts/chatbot.py

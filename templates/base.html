@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Optional: Link custom CSS if needed -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+    <style>
+        body {
+            background-color: #141414;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <header class="bg-black sticky top-0 z-10 shadow-md">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-red-600">Netflix Recommender</h1>
+            <div class="space-x-4">
+                <a href="{{ url_for('index') }}" class="text-white hover:text-red-600 transition">Home</a>
+                <a href="{{ url_for('user') }}" class="text-white hover:text-red-600 transition">Add User</a>
+            </div>
+        </nav>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="bg-{{ 'green' if category == 'success' else 'red' }}-600 text-white p-4 rounded-md mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}
+        {% endblock %}
+    </main>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
